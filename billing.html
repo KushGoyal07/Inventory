@@ -8,11 +8,21 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <!-- jsPDF and html2canvas for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
         body {
             font-family: 'Inter', sans-serif;
+            /* Enhanced background with subtle pattern and gradient */
+            background-color: #f0f4f8; /* Light blue-gray */
+            background-image: radial-gradient(circle at top left, #e0e7ff, transparent),
+                              radial-gradient(circle at bottom right, #bfdbfe, transparent);
+            background-size: 800px 800px;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
         }
 
         /* Keyframes for animations */
@@ -74,43 +84,49 @@
         }
         .btn-primary {
             background-color: #22C55E; /* Green 500 */
+            background-image: linear-gradient(to right, #22C55E, #16A34A); /* Subtle gradient */
             color: white;
         }
         .btn-primary:hover {
             background-color: #16A34A; /* Green 600 */
+            background-image: linear-gradient(to right, #16A34A, #15803D);
             transform: translateY(-3px);
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
         }
         .btn-secondary {
-            background-color: #CBD5E1; /* Slate 300 */
-            color: #334155; /* Slate 800 */
+            background-color: #E2E8F0; /* Slate 200 */
+            color: #475569; /* Slate 700 */
         }
         .btn-secondary:hover {
-            background-color: #94A3B8; /* Slate 400 */
+            background-color: #CBD5E1; /* Slate 300 */
             transform: translateY(-3px);
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
         }
         .btn-danger {
             background-color: #EF4444; /* Red 500 */
+            background-image: linear-gradient(to right, #EF4444, #DC2626);
             color: white;
         }
         .btn-danger:hover {
             background-color: #DC2626; /* Red 600 */
+            background-image: linear-gradient(to right, #DC2626, #B91C1C);
             transform: translateY(-3px);
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
         }
         .btn-info {
             background-color: #60A5FA; /* Blue 400 */
+            background-image: linear-gradient(to right, #60A5FA, #3B82F6);
             color: white;
         }
         .btn-info:hover {
             background-color: #3B82F6; /* Blue 500 */
+            background-image: linear-gradient(to right, #3B82F6, #2563EB);
             transform: translateY(-3px);
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
         }
         .input-field {
             padding: 0.85rem;
-            border: 1px solid #E2E8F0;
+            border: 1px solid #CBD5E1; /* Slate 300 */
             border-radius: 0.625rem;
             width: 100%;
             background-color: white;
@@ -118,16 +134,19 @@
         }
         .input-field:focus {
             border-color: #6366F1;
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.3);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.4);
             outline: none;
         }
         .table-header {
-            background-color: #E0E7FF;
+            background-color: #475569; /* Slate 700 */
             font-weight: 700;
-            color: #374151;
+            color: #F8FAFC; /* Slate 50 */
             position: sticky;
             top: 0;
             z-index: 10;
+        }
+        .table-row {
+            border-bottom: 1px solid #E2E8F0; /* Subtle row divider */
         }
         .table-row:nth-child(odd) {
             background-color: #F8FAFC;
@@ -153,6 +172,9 @@
             font-weight: 500;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             animation: fadeIn 0.4s ease-out forwards;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
         }
         .message-box.success {
             background-color: #D1FAE5;
@@ -165,46 +187,49 @@
             border: 1px solid #FECACA;
         }
         .navbar {
-            background-color: #374151;
+            background-color: #2F3B4E; /* Darker, professional background */
             color: white;
-            padding: 0.75rem 2rem;
-            border-radius: 0.75rem;
+            padding: 1rem 2.5rem;
+            border-radius: 1rem;
             margin-bottom: 2.5rem;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
-            gap: 1rem;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            gap: 1.5rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
             animation: slideInFromTop 0.6s ease-out forwards;
         }
         .navbar .app-title {
-            font-size: 2.25rem;
+            font-size: 2.5rem;
             font-weight: 800;
             color: #E0E7FF;
             margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
         }
         .navbar .app-subtitle {
-            font-size: 1rem;
+            font-size: 1.125rem;
             color: #CBD5E1;
             margin-top: 0;
         }
         .navbar .user-info {
             color: #E2E8F0;
-            font-size: 0.9rem;
+            font-size: 1rem;
         }
         .navbar .user-id-badge {
             background-color: #4B5563;
             color: #F8FAFC;
-            padding: 0.25rem 0.75rem;
-            border-radius: 0.5rem;
-            font-size: 0.75rem;
+            padding: 0.35rem 0.9rem;
+            border-radius: 0.625rem;
+            font-size: 0.875rem;
         }
         .navbar .btn-logout {
             background-color: #EF4444;
             color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.625rem;
             font-weight: 600;
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -217,33 +242,71 @@
         @media (min-width: 640px) {
             .navbar {
                 flex-direction: row;
-                padding: 0.75rem 3rem;
+                padding: 1rem 3rem;
             }
             .navbar .app-title {
-                font-size: 2.5rem;
+                font-size: 3rem;
             }
             .navbar .app-subtitle {
-                font-size: 1.125rem;
+                font-size: 1.25rem;
             }
             .navbar .user-info {
-                font-size: 1rem;
+                font-size: 1.05rem;
             }
             .navbar .user-id-badge {
-                font-size: 0.875rem;
+                font-size: 0.9rem;
             }
             .navbar .btn-logout {
-                padding: 0.6rem 1.2rem;
+                padding: 0.7rem 1.3rem;
             }
+        }
+
+        /* Styles for the hidden PDF template */
+        #pdfBillTemplate {
+            width: 210mm; /* A4 width */
+            min-height: 297mm; /* A4 height */
+            padding: 20mm;
+            box-sizing: border-box;
+            background: white;
+            font-family: 'Inter', sans-serif;
+            color: #333;
+            display: none; /* Hidden by default */
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        #pdfBillTemplate h1, #pdfBillTemplate h2, #pdfBillTemplate h3 {
+            color: #2F3B4E;
+        }
+        #pdfBillTemplate table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        #pdfBillTemplate th, #pdfBillTemplate td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        #pdfBillTemplate th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        #pdfBillTemplate .text-right {
+            text-align: right;
+        }
+        #pdfBillTemplate .total-row {
+            font-weight: bold;
+            background-color: #e0e7ff;
         }
     </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 font-sans flex flex-col items-center p-4 sm:p-6 lg:p-10">
+<body class="min-h-screen font-sans flex flex-col items-center p-4 sm:p-6 lg:p-10">
 
     <div id="app-container" class="w-full max-w-6xl bg-white shadow-2xl rounded-2xl p-6 sm:p-8 lg:p-10 mb-10 border border-gray-100 animate-fadeIn">
         <!-- Navbar Section -->
         <nav class="navbar">
             <div class="text-center sm:text-left">
                 <h1 class="app-title">
+                    <i data-lucide="receipt" class="icon w-8 h-8 text-indigo-200"></i>
                     Electronic Shop Billing
                 </h1>
                 <p class="app-subtitle">Create Bills for Sales</p>
@@ -316,6 +379,57 @@
         </div>
     </div>
 
+    <!-- Hidden HTML Template for PDF Bill -->
+    <div id="pdfBillTemplate" class="p-8 bg-white shadow-lg">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-900 mb-2">Electronic Shop</h1>
+            <p class="text-lg text-gray-600">Your Trusted Electronics Partner</p>
+            <p class="text-sm text-gray-500">123 Main Street, Tech City, 12345</p>
+            <p class="text-sm text-gray-500">Phone: (123) 456-7890 | Email: info@electronicshop.com</p>
+        </div>
+
+        <div class="flex justify-between items-center mb-6 border-b pb-4 border-gray-200">
+            <h2 class="text-2xl font-semibold text-gray-800">SALES INVOICE</h2>
+            <div class="text-right">
+                <p class="text-md font-medium">Invoice No: <span id="pdfInvoiceNumber"></span></p>
+                <p class="text-md font-medium">Date: <span id="pdfInvoiceDate"></span></p>
+            </div>
+        </div>
+
+        <div class="mb-8">
+            <h3 class="text-lg font-semibold text-gray-700 mb-2">Bill To:</h3>
+            <p id="pdfCustomerName" class="text-gray-600">Customer Name: Not Specified</p>
+            <p id="pdfCustomerAddress" class="text-gray-600">Address: Not Specified</p>
+            <p id="pdfCustomerPhone" class="text-gray-600">Phone: Not Specified</p>
+        </div>
+
+        <table class="w-full text-sm mb-8">
+            <thead>
+                <tr class="bg-gray-100">
+                    <th class="py-2 px-4 text-left font-semibold text-gray-700">Item Description</th>
+                    <th class="py-2 px-4 text-left font-semibold text-gray-700">Qty</th>
+                    <th class="py-2 px-4 text-right font-semibold text-gray-700">Unit Price (₹)</th>
+                    <th class="py-2 px-4 text-right font-semibold text-gray-700">Amount (₹)</th>
+                </tr>
+            </thead>
+            <tbody id="pdfBillItems">
+                <!-- Bill items will be inserted here by JavaScript -->
+            </tbody>
+            <tfoot>
+                <tr class="total-row">
+                    <td colspan="3" class="py-2 px-4 text-right">Total Amount:</td>
+                    <td class="py-2 px-4 text-right" id="pdfBillTotal">₹0.00</td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div class="text-center text-gray-500 text-xs mt-10">
+            <p>Thank you for your business!</p>
+            <p>All prices are in Indian Rupees (₹). Goods once sold cannot be exchanged or returned.</p>
+        </div>
+    </div>
+
+
     <script>
         // Check for logged-in user on page load
         const loggedInUser = sessionStorage.getItem('loggedInUser');
@@ -345,6 +459,17 @@
         const generateBillConfirmModal = document.getElementById('generateBillConfirmModal');
         const cancelGenerateBillButton = document.getElementById('cancelGenerateBillButton');
         const confirmGenerateBillButton = document.getElementById('confirmGenerateBillButton');
+
+        // PDF Template Elements
+        const pdfBillTemplate = document.getElementById('pdfBillTemplate');
+        const pdfInvoiceNumber = document.getElementById('pdfInvoiceNumber');
+        const pdfInvoiceDate = document.getElementById('pdfInvoiceDate');
+        const pdfCustomerName = document.getElementById('pdfCustomerName');
+        const pdfCustomerAddress = document.getElementById('pdfCustomerAddress');
+        const pdfCustomerPhone = document.getElementById('pdfCustomerPhone');
+        const pdfBillItems = document.getElementById('pdfBillItems');
+        const pdfBillTotal = document.getElementById('pdfBillTotal');
+
 
         // --- Local Storage Functions ---
         const getAllUsers = () => {
@@ -386,7 +511,7 @@
             if (window.appState.message.text) {
                 messageBox.classList.remove('hidden', 'success', 'error');
                 messageBox.classList.add(window.appState.message.type);
-                messageBox.textContent = window.appState.message.text;
+                messageBox.innerHTML = `<i data-lucide="${window.appState.message.type === 'success' ? 'check-circle' : 'alert-triangle'}" class="icon w-6 h-6"></i><span>${window.appState.message.text}</span>`;
                 setTimeout(() => {
                     messageBox.classList.add('hidden');
                     window.appState.message = { text: '', type: '' }; // Clear message in state
@@ -404,10 +529,10 @@
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="table-header">
                                 <tr>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Item Name</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Available</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Price (INR)</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Add to Bill</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Item Name</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Available</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Price (₹)</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Add to Bill</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
@@ -454,11 +579,11 @@
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="table-header bg-indigo-50">
                                 <tr>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Item</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Qty</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Price</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Subtotal</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Remove</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Item</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Qty</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Price</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Subtotal</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Remove</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
@@ -539,6 +664,11 @@
             const itemInCart = window.appState.billingCart.find(cartItem => cartItem.id === itemId);
 
             if (itemInCart) {
+                // Check if adding more exceeds inventory
+                if ((itemInCart.quantity + quantity) > itemInInventory.quantity) {
+                    window.showMessage(`Cannot add more. Only ${itemInInventory.quantity} of ${itemInInventory.name} available in total.`, 'error');
+                    return;
+                }
                 // Update quantity in cart
                 itemInCart.quantity += quantity;
             } else {
@@ -582,7 +712,7 @@
             window.renderApp(); // Show confirmation modal
         };
 
-        window.confirmGenerateBill = () => {
+        window.confirmGenerateBill = async () => {
             // Deduct quantities from actual inventory
             window.appState.billingCart.forEach(cartItem => {
                 const itemInInventory = window.appState.inventory.find(invItem => invItem.id === cartItem.id);
@@ -593,8 +723,13 @@
             });
 
             saveUserInventory(); // Save updated inventory to localStorage
-            window.appState.billingCart = []; // Clear bill
-            window.showMessage('Bill generated successfully! Inventory updated.', 'success');
+            
+            // Populate PDF template
+            await populatePdfTemplate();
+            await generatePdfBill(); // Generate PDF
+
+            window.appState.billingCart = []; // Clear bill after PDF generation
+            window.showMessage('Bill generated successfully! Inventory updated. PDF downloaded.', 'success');
             window.appState.showGenerateBillConfirmModal = false;
             window.renderApp(); // Re-render to show updated inventory and clear bill
         };
@@ -603,6 +738,65 @@
             window.appState.showGenerateBillConfirmModal = false;
             window.renderApp(); // Hide modal
         };
+
+        // --- PDF Generation Functions ---
+        const populatePdfTemplate = () => {
+            const now = new Date();
+            pdfInvoiceNumber.textContent = `INV-${now.getTime().toString().slice(-8)}`; // Simple unique ID
+            pdfInvoiceDate.textContent = now.toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
+            
+            // You can add input fields for customer name, address, phone if needed
+            // For now, using placeholders or fixed text
+            pdfCustomerName.textContent = `Customer Name: John Doe`;
+            pdfCustomerAddress.textContent = `Address: 456 Oak Ave, Sample Town, 67890`;
+            pdfCustomerPhone.textContent = `Phone: (987) 654-3210`;
+
+            let itemsHtml = '';
+            let totalAmount = 0;
+            window.appState.billingCart.forEach(item => {
+                const subtotal = item.quantity * item.price;
+                totalAmount += subtotal;
+                itemsHtml += `
+                    <tr>
+                        <td class="py-2 px-4">${item.name}</td>
+                        <td class="py-2 px-4">${item.quantity}</td>
+                        <td class="py-2 px-4 text-right">₹${item.price.toFixed(2)}</td>
+                        <td class="py-2 px-4 text-right">₹${subtotal.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+            pdfBillItems.innerHTML = itemsHtml;
+            pdfBillTotal.textContent = `₹${totalAmount.toFixed(2)}`;
+        };
+
+        const generatePdfBill = async () => {
+            const { jsPDF } = window.jspdf; // Get jsPDF from the global window object
+
+            // Use html2canvas to render the hidden template div
+            const canvas = await html2canvas(pdfBillTemplate, { scale: 2 }); // Scale for better resolution
+            const imgData = canvas.toDataURL('image/png');
+
+            const pdf = new jsPDF('p', 'mm', 'a4'); // 'p' for portrait, 'mm' for millimeters, 'a4' size
+            const imgWidth = 210; // A4 width in mm
+            const pageHeight = 297; // A4 height in mm
+            const imgHeight = canvas.height * imgWidth / canvas.width;
+            let heightLeft = imgHeight;
+
+            let position = 0;
+
+            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+
+            while (heightLeft >= 0) {
+                position = heightLeft - imgHeight;
+                pdf.addPage();
+                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+            }
+
+            pdf.save(`Bill-${pdfInvoiceNumber.textContent}.pdf`);
+        };
+
 
         // --- Event Listeners ---
         document.addEventListener('DOMContentLoaded', () => {
