@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login / Signup - Inventory Manager</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Enhanced background with subtle pattern and gradient */
+            background-color: #f0f4f8; /* Light blue-gray */
+            background-image: radial-gradient(circle at top left, #e0e7ff, transparent),
+                              radial-gradient(circle at bottom right, #bfdbfe, transparent);
+            background-size: 800px 800px;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+        /* Keyframes for animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideInFromTop {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes popIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .animate-fadeIn {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        .animate-slideInFromTop {
+            animation: slideInFromTop 0.6s ease-out forwards;
+        }
+        .animate-popIn {
+            animation: popIn 0.3s ease-out forwards;
+        }
+        .btn-base {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem; /* More rounded */
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* More professional transition */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Softer shadow */
+            border: 1px solid transparent; /* For consistent sizing */
+        }
+        .btn-primary {
+            background-color: #6366F1; /* Indigo 500 */
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #4F46E5; /* Indigo 600 */
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        .btn-secondary {
+            background-color: #CBD5E1; /* Slate 300 */
+            color: #334155; /* Slate 800 */
+        }
+        .btn-secondary:hover {
+            background-color: #94A3B8; /* Slate 400 */
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        .input-field {
+            padding: 0.85rem; /* Slightly more padding */
+            border: 1px solid #E2E8F0; /* Slate 200 */
+            border-radius: 0.625rem; /* More rounded */
+            width: 100%;
+            background-color: white;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .input-field:focus {
+            border-color: #6366F1; /* Indigo 500 */
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.3); /* Stronger, more vibrant focus ring */
+            outline: none;
+        }
+        .message-box {
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            font-size: 1.125rem;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        .message-box.success {
+            background-color: #D1FAE5; /* Green 100 */
+            color: #059669; /* Green 600 */
+            border: 1px solid #A7F3D0; /* Green 200 */
+        }
+        .message-box.error {
+            background-color: #FEE2E2; /* Red 100 */
+            color: #DC2626; /* Red 600 */
+            border: 1px solid #FECACA; /* Red 200 */
+        }
+        /* Navbar specific styles */
+        .navbar {
+            background-color: #374151; /* Darker, professional background */
+            color: white; /* White text for contrast */
+            padding: 0.75rem 2rem; /* Reduced vertical padding for a smaller look */
+            border-radius: 0.75rem; /* Slightly less rounded than before for a sleeker feel */
+            margin-bottom: 2.5rem;
+            display: flex;
+            flex-direction: column; /* Stack on small screens */
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem; /* Space between elements */
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2); /* More prominent shadow */
+            animation: slideInFromTop 0.6s ease-out forwards; /* Slide down animation */
+        }
+        .navbar .app-title {
+            font-size: 2.25rem; /* text-4xl */
+            font-weight: 800; /* font-extrabold */
+            color: #E0E7FF; /* Light indigo for title */
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .navbar .app-subtitle {
+            font-size: 1rem; /* text-lg */
+            color: #CBD5E1; /* Lighter gray for subtitle */
+            margin-top: 0;
+        }
+        @media (min-width: 640px) { /* sm breakpoint */
+            .navbar {
+                flex-direction: row;
+                padding: 0.75rem 3rem; /* More horizontal padding on larger screens */
+            }
+            .navbar .app-title {
+                font-size: 2.5rem; /* Slightly larger on desktop */
+            }
+            .navbar .app-subtitle {
+                font-size: 1.125rem; /* Slightly larger on desktop */
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center font-sans p-4 sm:p-6 lg:p-10">
+
+    <div class="w-full max-w-md bg-white shadow-2xl rounded-2xl p-6 sm:p-8 lg:p-10 border border-gray-100 animate-fadeIn">
+        <!-- Navbar Section -->
+        <nav class="navbar">
+            <div class="text-center sm:text-left">
+                <h1 class="app-title">
+                    <i data-lucide="shopping-bag" class="icon w-8 h-8 text-indigo-200"></i>
+                    Inventory Manager
+                </h1>
+                <p class="app-subtitle">Inventory Management System</p>
+            </div>
+            <div class="flex items-center space-x-4 mt-4 sm:mt-0">
+                <button type="button" id="loginButton" class="btn-base btn-primary px-5 py-2 text-sm">
+                    <i data-lucide="log-in" class="icon w-5 h-5"></i> Login
+                </button>
+                <button type="button" id="signupButton" class="btn-base btn-secondary px-5 py-2 text-sm">
+                    <i data-lucide="user-plus" class="icon w-5 h-5"></i> Sign Up
+                </button>
+            </div>
+        </nav>
+
+        <div id="messageBox" class="hidden message-box text-center mb-6"></div>
+
+        <form id="authForm" class="space-y-6">
+            <div>
+                <label for="username" class="block text-gray-800 text-sm font-semibold mb-2">Username</label>
+                <input type="text" id="username" class="input-field" placeholder="Enter your username" required>
+            </div>
+            <div>
+                <label for="password" class="block text-gray-800 text-sm font-semibold mb-2">Password</label>
+                <input type="password" id="password" class="input-field" placeholder="Enter your password" required>
+            </div>
+            <!-- Buttons moved to navbar, form is now just for inputs -->
+        </form>
+    </div>
+
+    <script>
+        // DOM Elements
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const loginButton = document.getElementById('loginButton');
+        const signupButton = document.getElementById('signupButton');
+        const messageBox = document.getElementById('messageBox');
+
+        // Function to display messages
+        const showMessage = (text, type) => {
+            messageBox.classList.remove('hidden', 'success', 'error');
+            messageBox.classList.add(type);
+            messageBox.textContent = text;
+            setTimeout(() => {
+                messageBox.classList.add('hidden');
+            }, 3000);
+        };
+
+        // Function to get all users from localStorage
+        const getAllUsers = () => {
+            const usersJson = localStorage.getItem('electronicShopUsers');
+            return usersJson ? JSON.parse(usersJson) : {};
+        };
+
+        // Function to save all users to localStorage
+        const saveAllUsers = (users) => {
+            localStorage.setItem('electronicShopUsers', JSON.stringify(users));
+        };
+
+        // Handle Signup
+        signupButton.addEventListener('click', (e) => {
+            e.preventDefault(); // Prevent default form submission if this button was inside a form
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value.trim();
+
+            if (!username || !password) {
+                showMessage('Please enter both username and password.', 'error');
+                return;
+            }
+
+            let users = getAllUsers();
+            if (users[username]) {
+                showMessage('Username already exists. Please choose a different one.', 'error');
+                return;
+            }
+
+            users[username] = { password: password, inventory: [] }; // Store password and empty inventory
+            saveAllUsers(users);
+            showMessage('Signup successful! You can now log in.', 'success');
+            usernameInput.value = '';
+            passwordInput.value = '';
+        });
+
+        // Handle Login
+        loginButton.addEventListener('click', (e) => {
+            e.preventDefault(); // Prevent default form submission if this button was inside a form
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value.trim();
+
+            if (!username || !password) {
+                showMessage('Please enter both username and password.', 'error');
+                return;
+            }
+
+            const users = getAllUsers();
+            if (users[username] && users[username].password === password) {
+                sessionStorage.setItem('loggedInUser', username); // Store logged-in user in sessionStorage
+                showMessage('Login successful! Redirecting...', 'success');
+                setTimeout(() => {
+                    window.location.href = 'inventory.html'; // Redirect to inventory page
+                }, 500);
+            } else {
+                showMessage('Invalid username or password.', 'error');
+            }
+        });
+
+        // Initialize Lucide icons
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+    </script>
+</body>
+</html>

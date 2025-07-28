@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Bill - Electronic Shop</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Keyframes for animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInFromTop {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .animate-fadeIn {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        .animate-slideInFromTop {
+            animation: slideInFromTop 0.6s ease-out forwards;
+        }
+        .animate-popIn {
+            animation: popIn 0.3s ease-out forwards;
+        }
+
+        .scroll-container {
+            max-height: 45vh; /* Adjusted for billing items */
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .scroll-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        .scroll-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        .scroll-container::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        .scroll-container::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        .btn-base {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border: 1px solid transparent;
+        }
+        .btn-primary {
+            background-color: #22C55E; /* Green 500 */
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #16A34A; /* Green 600 */
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        .btn-secondary {
+            background-color: #CBD5E1; /* Slate 300 */
+            color: #334155; /* Slate 800 */
+        }
+        .btn-secondary:hover {
+            background-color: #94A3B8; /* Slate 400 */
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        .btn-danger {
+            background-color: #EF4444; /* Red 500 */
+            color: white;
+        }
+        .btn-danger:hover {
+            background-color: #DC2626; /* Red 600 */
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        .btn-info {
+            background-color: #60A5FA; /* Blue 400 */
+            color: white;
+        }
+        .btn-info:hover {
+            background-color: #3B82F6; /* Blue 500 */
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        .input-field {
+            padding: 0.85rem;
+            border: 1px solid #E2E8F0;
+            border-radius: 0.625rem;
+            width: 100%;
+            background-color: white;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .input-field:focus {
+            border-color: #6366F1;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.3);
+            outline: none;
+        }
+        .table-header {
+            background-color: #E0E7FF;
+            font-weight: 700;
+            color: #374151;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .table-row:nth-child(odd) {
+            background-color: #F8FAFC;
+        }
+        .table-row:nth-child(even) {
+            background-color: white;
+        }
+        .table-row:hover {
+            background-color: #EEF2FF;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.15s ease-in-out;
+        }
+        .icon {
+            width: 1.25rem;
+            height: 1.25rem;
+            stroke-width: 2;
+        }
+        .message-box {
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            font-size: 1.125rem;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        .message-box.success {
+            background-color: #D1FAE5;
+            color: #059669;
+            border: 1px solid #A7F3D0;
+        }
+        .message-box.error {
+            background-color: #FEE2E2;
+            color: #DC2626;
+            border: 1px solid #FECACA;
+        }
+        .navbar {
+            background-color: #374151;
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 0.75rem;
+            margin-bottom: 2.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            animation: slideInFromTop 0.6s ease-out forwards;
+        }
+        .navbar .app-title {
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: #E0E7FF;
+            margin-bottom: 0.25rem;
+        }
+        .navbar .app-subtitle {
+            font-size: 1rem;
+            color: #CBD5E1;
+            margin-top: 0;
+        }
+        .navbar .user-info {
+            color: #E2E8F0;
+            font-size: 0.9rem;
+        }
+        .navbar .user-id-badge {
+            background-color: #4B5563;
+            color: #F8FAFC;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.75rem;
+        }
+        .navbar .btn-logout {
+            background-color: #EF4444;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .navbar .btn-logout:hover {
+            background-color: #DC2626;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        @media (min-width: 640px) {
+            .navbar {
+                flex-direction: row;
+                padding: 0.75rem 3rem;
+            }
+            .navbar .app-title {
+                font-size: 2.5rem;
+            }
+            .navbar .app-subtitle {
+                font-size: 1.125rem;
+            }
+            .navbar .user-info {
+                font-size: 1rem;
+            }
+            .navbar .user-id-badge {
+                font-size: 0.875rem;
+            }
+            .navbar .btn-logout {
+                padding: 0.6rem 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 font-sans flex flex-col items-center p-4 sm:p-6 lg:p-10">
+
+    <div id="app-container" class="w-full max-w-6xl bg-white shadow-2xl rounded-2xl p-6 sm:p-8 lg:p-10 mb-10 border border-gray-100 animate-fadeIn">
+        <!-- Navbar Section -->
+        <nav class="navbar">
+            <div class="text-center sm:text-left">
+                <h1 class="app-title">
+                    Electronic Shop Billing
+                </h1>
+                <p class="app-subtitle">Create Bills for Sales</p>
+            </div>
+            <div class="flex items-center space-x-4 mt-4 sm:mt-0">
+                <p class="user-info hidden md:block">
+                    Logged in as: <span id="loggedInUsernameDisplay" class="user-id-badge select-all"></span>
+                </p>
+                <button id="goToInventoryButton" class="btn-base btn-secondary px-5 py-2 text-sm">
+                    <i data-lucide="package" class="icon w-5 h-5"></i> Back to Inventory
+                </button>
+                <button id="logoutButton" class="btn-base btn-danger px-5 py-2 text-sm">
+                    <i data-lucide="log-out" class="icon w-5 h-5"></i> Logout
+                </button>
+            </div>
+        </nav>
+
+        <!-- Message Box (will be dynamically updated) -->
+        <div id="messageBox" class="hidden message-box text-center mb-8"></div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Available Inventory Section -->
+            <div class="p-6 bg-gray-50 border border-gray-200 rounded-xl shadow-md animate-fadeIn">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Available Inventory</h2>
+                <div id="availableInventoryList" class="scroll-container">
+                    <p class="text-gray-500 text-center py-8">Loading inventory...</p>
+                </div>
+            </div>
+
+            <!-- Billing Cart Section -->
+            <div class="p-6 bg-white border border-gray-200 rounded-xl shadow-md animate-fadeIn">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Items for Bill</h2>
+                <div id="billingCartList" class="scroll-container mb-6">
+                    <p class="text-gray-500 text-center py-8">No items added to bill.</p>
+                </div>
+
+                <div class="border-t border-gray-200 pt-4 mt-4">
+                    <div class="flex justify-between items-center text-xl font-bold text-gray-800 mb-4">
+                        <span>Total:</span>
+                        <span id="billTotal">₹0.00</span>
+                    </div>
+                    <div class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4">
+                        <button id="clearBillButton" class="btn-base btn-secondary px-6 py-2.5">
+                            <i data-lucide="x-circle" class="icon w-5 h-5"></i> Clear Bill
+                        </button>
+                        <button id="generateBillButton" class="btn-base btn-primary px-6 py-2.5">
+                            <i data-lucide="check-circle" class="icon w-5 h-5"></i> Generate Bill
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal (for Generate Bill) -->
+    <div id="generateBillConfirmModal" class="fixed inset-0 bg-gray-900 bg-opacity-70 flex items-center justify-center z-50 p-4 hidden">
+        <div class="bg-white p-8 rounded-xl shadow-2xl max-w-md w-full text-center border border-gray-200 animate-popIn">
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">Confirm Bill Generation</h3>
+            <p class="text-gray-600 mb-8 text-lg">
+                Are you sure you want to generate this bill? This will deduct items from your inventory.
+            </p>
+            <div class="flex justify-center space-x-4">
+                <button id="cancelGenerateBillButton" class="btn-base btn-secondary px-6 py-2.5">
+                    Cancel
+                </button>
+                <button id="confirmGenerateBillButton" class="btn-base btn-primary px-6 py-2.5">
+                    Generate Bill
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check for logged-in user on page load
+        const loggedInUser = sessionStorage.getItem('loggedInUser');
+        if (!loggedInUser) {
+            window.location.href = 'index.html'; // Redirect to login if not logged in
+        }
+
+        // Global state for the application
+        window.appState = {
+            loggedInUser: loggedInUser,
+            inventory: [], // Full inventory from localStorage
+            billingCart: [], // Items currently in the bill
+            message: { text: '', type: '' },
+            showGenerateBillConfirmModal: false,
+        };
+
+        // DOM Elements
+        const loggedInUsernameDisplay = document.getElementById('loggedInUsernameDisplay');
+        const logoutButton = document.getElementById('logoutButton');
+        const goToInventoryButton = document.getElementById('goToInventoryButton');
+        const messageBox = document.getElementById('messageBox');
+        const availableInventoryList = document.getElementById('availableInventoryList');
+        const billingCartList = document.getElementById('billingCartList');
+        const billTotalDisplay = document.getElementById('billTotal');
+        const clearBillButton = document.getElementById('clearBillButton');
+        const generateBillButton = document.getElementById('generateBillButton');
+        const generateBillConfirmModal = document.getElementById('generateBillConfirmModal');
+        const cancelGenerateBillButton = document.getElementById('cancelGenerateBillButton');
+        const confirmGenerateBillButton = document.getElementById('confirmGenerateBillButton');
+
+        // --- Local Storage Functions ---
+        const getAllUsers = () => {
+            const usersJson = localStorage.getItem('electronicShopUsers');
+            return usersJson ? JSON.parse(usersJson) : {};
+        };
+
+        const saveAllUsers = (users) => {
+            localStorage.setItem('electronicShopUsers', JSON.stringify(users));
+        };
+
+        const saveUserInventory = () => {
+            let users = getAllUsers();
+            if (users[window.appState.loggedInUser]) {
+                users[window.appState.loggedInUser].inventory = window.appState.inventory;
+                saveAllUsers(users);
+                console.log(`[LOCAL STORAGE] Inventory for ${window.appState.loggedInUser} saved.`);
+            }
+        };
+
+        const loadUserInventory = () => {
+            let users = getAllUsers();
+            if (users[window.appState.loggedInUser]) {
+                window.appState.inventory = users[window.appState.loggedInUser].inventory || [];
+                window.appState.inventory.sort((a, b) => a.name.localeCompare(b.name));
+                console.log(`[LOCAL STORAGE] Inventory for ${window.appState.loggedInUser} loaded:`, window.appState.inventory.length, 'items.');
+            } else {
+                window.appState.inventory = [];
+                console.warn(`[LOCAL STORAGE] No inventory found for ${window.appState.loggedInUser}, starting with empty list.`);
+            }
+        };
+
+        // Function to render the entire application UI based on appState
+        window.renderApp = () => {
+            // Update logged-in username display
+            loggedInUsernameDisplay.textContent = window.appState.loggedInUser;
+
+            // Message Box Display
+            if (window.appState.message.text) {
+                messageBox.classList.remove('hidden', 'success', 'error');
+                messageBox.classList.add(window.appState.message.type);
+                messageBox.textContent = window.appState.message.text;
+                setTimeout(() => {
+                    messageBox.classList.add('hidden');
+                    window.appState.message = { text: '', type: '' }; // Clear message in state
+                }, 3000);
+            } else {
+                messageBox.classList.add('hidden');
+            }
+
+            // Render Available Inventory
+            if (window.appState.inventory.length === 0) {
+                availableInventoryList.innerHTML = '<p class="text-gray-500 text-center py-8">No items in inventory. Add some from the Inventory page.</p>';
+            } else {
+                let inventoryHtml = `
+                    <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-md">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="table-header">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Item Name</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Available</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Price (INR)</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Add to Bill</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                `;
+                window.appState.inventory.forEach(item => {
+                    // Only show items with quantity > 0
+                    if (item.quantity > 0) {
+                        inventoryHtml += `
+                            <tr class="table-row">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${item.name}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${item.quantity}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">₹${item.price.toFixed(2)}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
+                                    <input type="number" data-id="${item.id}" class="bill-quantity-input w-20 p-2 border rounded-md text-center" min="1" max="${item.quantity}" value="1">
+                                    <button data-id="${item.id}" class="add-to-bill-btn btn-base btn-info ml-2 px-3 py-1.5 text-sm">
+                                        <i data-lucide="plus-circle" class="icon w-4 h-4"></i> Add
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    }
+                });
+                inventoryHtml += `</tbody></table></div>`;
+                availableInventoryList.innerHTML = inventoryHtml;
+
+                // Attach event listeners for add to bill buttons
+                availableInventoryList.querySelectorAll('.add-to-bill-btn').forEach(button => {
+                    button.onclick = (event) => {
+                        const itemId = event.currentTarget.dataset.id;
+                        const inputElement = event.currentTarget.previousElementSibling;
+                        const quantity = parseInt(inputElement.value, 10);
+                        window.handleAddToBill(itemId, quantity);
+                    };
+                });
+            }
+
+            // Render Billing Cart
+            let totalBill = 0;
+            if (window.appState.billingCart.length === 0) {
+                billingCartList.innerHTML = '<p class="text-gray-500 text-center py-8">No items added to bill.</p>';
+            } else {
+                let cartHtml = `
+                    <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-md">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="table-header bg-indigo-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Item</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Qty</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Price</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Subtotal</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Remove</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                `;
+                window.appState.billingCart.forEach(cartItem => {
+                    const subtotal = cartItem.quantity * cartItem.price;
+                    totalBill += subtotal;
+                    cartHtml += `
+                        <tr class="table-row">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${cartItem.name}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${cartItem.quantity}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">₹${cartItem.price.toFixed(2)}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">₹${subtotal.toFixed(2)}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
+                                <button data-id="${cartItem.id}" class="remove-from-bill-btn text-red-600 hover:text-red-800 font-semibold hover:underline flex items-center gap-1">
+                                    <i data-lucide="minus-circle" class="icon w-4 h-4"></i> Remove
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                cartHtml += `</tbody></table></div>`;
+                billingCartList.innerHTML = cartHtml;
+
+                // Attach event listeners for remove from bill buttons
+                billingCartList.querySelectorAll('.remove-from-bill-btn').forEach(button => {
+                    button.onclick = (event) => {
+                        const itemId = event.currentTarget.dataset.id;
+                        window.handleRemoveFromBill(itemId);
+                    };
+                });
+            }
+            billTotalDisplay.textContent = `₹${totalBill.toFixed(2)}`;
+
+            // Confirmation Modal Display (for Generate Bill)
+            if (window.appState.showGenerateBillConfirmModal) {
+                generateBillConfirmModal.classList.remove('hidden');
+            } else {
+                generateBillConfirmModal.classList.add('hidden');
+            }
+
+            // Re-create Lucide icons after DOM updates
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        };
+
+        // --- Event Handlers ---
+
+        window.showMessage = (text, type) => {
+            window.appState.message = { text, type };
+            window.renderApp();
+        };
+
+        window.handleLogout = () => {
+            sessionStorage.removeItem('loggedInUser'); // Clear session
+            window.location.href = 'index.html'; // Redirect to login
+        };
+
+        window.handleAddToBill = (itemId, quantity) => {
+            if (quantity <= 0 || isNaN(quantity)) {
+                window.showMessage('Please enter a valid quantity to add.', 'error');
+                return;
+            }
+
+            const itemInInventory = window.appState.inventory.find(item => item.id === itemId);
+
+            if (!itemInInventory) {
+                window.showMessage('Item not found in inventory.', 'error');
+                return;
+            }
+
+            if (quantity > itemInInventory.quantity) {
+                window.showMessage(`Only ${itemInInventory.quantity} of ${itemInInventory.name} available.`, 'error');
+                return;
+            }
+
+            const itemInCart = window.appState.billingCart.find(cartItem => cartItem.id === itemId);
+
+            if (itemInCart) {
+                // Update quantity in cart
+                itemInCart.quantity += quantity;
+            } else {
+                // Add new item to cart
+                window.appState.billingCart.push({
+                    id: itemInInventory.id,
+                    name: itemInInventory.name,
+                    price: itemInInventory.price,
+                    quantity: quantity
+                });
+            }
+            window.showMessage(`${quantity} x ${itemInInventory.name} added to bill!`, 'success');
+            window.renderApp(); // Re-render to update cart and total
+        };
+
+        window.handleRemoveFromBill = (itemId) => {
+            const initialLength = window.appState.billingCart.length;
+            window.appState.billingCart = window.appState.billingCart.filter(item => item.id !== itemId);
+            if (window.appState.billingCart.length < initialLength) {
+                window.showMessage('Item removed from bill.', 'success');
+            }
+            window.renderApp(); // Re-render to update cart and total
+        };
+
+        window.handleClearBill = () => {
+            if (window.appState.billingCart.length === 0) {
+                window.showMessage('Bill is already empty.', 'info');
+                return;
+            }
+            window.appState.billingCart = [];
+            window.showMessage('Bill cleared!', 'success');
+            window.renderApp();
+        };
+
+        window.handleGenerateBill = () => {
+            if (window.appState.billingCart.length === 0) {
+                window.showMessage('Add items to the bill before generating.', 'error');
+                return;
+            }
+            window.appState.showGenerateBillConfirmModal = true;
+            window.renderApp(); // Show confirmation modal
+        };
+
+        window.confirmGenerateBill = () => {
+            // Deduct quantities from actual inventory
+            window.appState.billingCart.forEach(cartItem => {
+                const itemInInventory = window.appState.inventory.find(invItem => invItem.id === cartItem.id);
+                if (itemInInventory) {
+                    itemInInventory.quantity -= cartItem.quantity;
+                    itemInInventory.lastUpdated = new Date().toISOString();
+                }
+            });
+
+            saveUserInventory(); // Save updated inventory to localStorage
+            window.appState.billingCart = []; // Clear bill
+            window.showMessage('Bill generated successfully! Inventory updated.', 'success');
+            window.appState.showGenerateBillConfirmModal = false;
+            window.renderApp(); // Re-render to show updated inventory and clear bill
+        };
+
+        window.cancelGenerateBill = () => {
+            window.appState.showGenerateBillConfirmModal = false;
+            window.renderApp(); // Hide modal
+        };
+
+        // --- Event Listeners ---
+        document.addEventListener('DOMContentLoaded', () => {
+            loadUserInventory(); // Load inventory for the logged-in user
+            window.renderApp(); // Initial render
+
+            // Attach event listeners
+            logoutButton.addEventListener('click', window.handleLogout);
+            goToInventoryButton.addEventListener('click', () => { window.location.href = 'inventory.html'; });
+            clearBillButton.addEventListener('click', window.handleClearBill);
+            generateBillButton.addEventListener('click', window.handleGenerateBill);
+            cancelGenerateBillButton.addEventListener('click', window.cancelGenerateBill);
+            confirmGenerateBillButton.addEventListener('click', window.confirmGenerateBill);
+
+            // Initial Lucide icon rendering
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+    </script>
+</body>
+</html>
