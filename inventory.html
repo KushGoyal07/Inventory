@@ -367,22 +367,22 @@
 </head>
 <body class="min-h-screen font-sans flex flex-col items-center p-4 sm:p-6 lg:p-10">
 
-    <div id="app-container" class="w-full max-w-6xl bg-white shadow-3xl rounded-3xl p-6 sm:p-8 lg:p-10 mb-10 border border-gray-100 animate-fadeIn">
+    <div id="app-container" class="w-full max-w-6xl bg-white shadow-2xl rounded-2xl p-6 sm:p-8 lg:p-10 mb-10 border border-gray-100 animate-fadeIn">
         <!-- Navbar Section -->
         <nav class="navbar">
             <div class="text-center sm:text-left">
                 <h1 class="app-title">
-                    <i data-lucide="package" class="icon w-8 h-8 text-indigo-200"></i>
-                    Electronic Shop Inventory
+                    <i data-lucide="receipt" class="icon w-8 h-8 text-indigo-200"></i>
+                    Electronic Shop Billing
                 </h1>
-                <p class="app-subtitle">Manage Your Stock Efficiently</p>
+                <p class="app-subtitle">Create Bills for Sales</p>
             </div>
             <div class="flex items-center space-x-4 mt-4 sm:mt-0">
                 <p class="user-info hidden md:block">
                     Logged in as: <span id="loggedInUsernameDisplay" class="user-id-badge select-all"></span>
                 </p>
-                <button id="goToBillingButton" class="btn-base btn-secondary px-5 py-2 text-sm">
-                    <i data-lucide="receipt" class="icon w-5 h-5"></i> Go to Billing
+                <button id="goToInventoryButton" class="btn-base btn-secondary px-5 py-2 text-sm">
+                    <i data-lucide="package" class="icon w-5 h-5"></i> Back to Inventory
                 </button>
                 <button id="logoutButton" class="btn-base btn-danger px-5 py-2 text-sm">
                     <i data-lucide="log-out" class="icon w-5 h-5"></i> Logout
@@ -393,58 +393,108 @@
         <!-- Message Box (will be dynamically updated) -->
         <div id="messageBox" class="hidden message-box text-center mb-8"></div>
 
-        <!-- Collapsible Add/Edit Item Form -->
-        <details id="itemFormDetails" class="animate-fadeIn" style="animation-delay: 0.2s;">
-            <summary>
-                <span class="flex items-center gap-3">
-                    <i data-lucide="plus-circle" class="icon w-7 h-7 text-indigo-600"></i>
-                    <span id="formTitle">Add New Inventory Item</span>
-                </span>
-                <i data-lucide="chevron-right" class="icon arrow-icon w-6 h-6 text-gray-500"></i>
-            </summary>
-            <div class="p-6 sm:p-8">
-                <form id="itemForm" class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
-                    <div>
-                        <label for="itemName" class="block text-gray-800 text-sm font-semibold mb-2">Item Name <span class="text-red-500">*</span></label>
-                        <input type="text" id="itemName" class="input-field" placeholder="e.g., Samsung Galaxy S24, Sony WH-1000XM5" required>
-                    </div>
-                    <div>
-                        <label for="itemQuantity" class="block text-gray-800 text-sm font-semibold mb-2">Quantity <span class="text-red-500">*</span></label>
-                        <input type="number" id="itemQuantity" class="input-field" placeholder="e.g., 10, 50" min="0" required>
-                    </div>
-                    <div>
-                        <label for="itemPrice" class="block text-gray-800 text-sm font-semibold mb-2">Price (INR) <span class="text-red-500">*</span></label>
-                        <input type="number" id="itemPrice" class="input-field" placeholder="e.g., 50000.00" step="0.01" min="0" required>
-                    </div>
-                    <div>
-                        <label for="itemImageUrl" class="block text-gray-800 text-sm font-semibold mb-2">Image URL (Optional)</label>
-                        <input type="url" id="itemImageUrl" class="input-field" placeholder="e.g., https://example.com/product.jpg">
-                    </div>
-                    <div class="md:col-span-2">
-                        <label for="itemDescription" class="block text-gray-800 text-sm font-semibold mb-2">Description (Optional)</label>
-                        <textarea id="itemDescription" class="input-field h-28 resize-y" placeholder="e.g., 15-inch, 8GB RAM, 256GB SSD, Space Gray"></textarea>
-                    </div>
-                    <div class="md:col-span-2 flex justify-end space-x-4 mt-6">
-                        <button type="button" id="cancelEditButton" class="btn-base btn-secondary px-7 py-2.5">
-                            Cancel Edit
-                        </button>
-                        <button type="submit" id="submitFormButton" class="btn-base btn-primary px-7 py-2.5">
-                            <i data-lucide="save" class="icon"></i> <span id="submitButtonText">Add Item</span>
-                        </button>
-                    </div>
-                </form>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Available Inventory Section -->
+            <div class="p-6 bg-gray-50 border border-gray-200 rounded-xl shadow-md animate-fadeIn">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Available Inventory</h2>
+                <div id="availableInventoryList" class="scroll-container">
+                    <p class="text-gray-500 text-center py-8">Loading inventory...</p>
+                </div>
             </div>
-        </details>
 
-        <!-- Inventory List Section -->
-        <div class="p-6 sm:p-8 bg-white border border-gray-200 rounded-xl shadow-lg animate-fadeIn" style="animation-delay: 0.4s;">
-            <h2 class="text-3xl font-bold text-gray-800 mb-7 text-center">Current Inventory Overview</h2>
-            <div id="inventoryListContainer">
-                <!-- Inventory items will be rendered here by JavaScript -->
-                <p class="text-gray-500 text-center py-12 text-lg">No items in inventory. Add some items using the form above!</p>
+            <!-- Billing Cart Section -->
+            <div class="p-6 bg-white border border-gray-200 rounded-xl shadow-md animate-fadeIn">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Items for Bill</h2>
+                <div id="billingCartList" class="scroll-container mb-6">
+                    <p class="text-gray-500 text-center py-8">No items added to bill.</p>
+                </div>
+
+                <div class="border-t border-gray-200 pt-4 mt-4">
+                    <div class="flex justify-between items-center text-xl font-bold text-gray-800 mb-4">
+                        <span>Total:</span>
+                        <span id="billTotal">₹0.00</span>
+                    </div>
+                    <div class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4">
+                        <button id="clearBillButton" class="btn-base btn-secondary px-6 py-2.5">
+                            <i data-lucide="x-circle" class="icon w-5 h-5"></i> Clear Bill
+                        </button>
+                        <button id="generateBillButton" class="btn-base btn-primary px-6 py-2.5">
+                            <i data-lucide="check-circle" class="icon w-5 h-5"></i> Generate Bill
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- Confirmation Modal (for Generate Bill) -->
+    <div id="generateBillConfirmModal" class="fixed inset-0 bg-gray-900 bg-opacity-70 flex items-center justify-center z-50 p-4 hidden">
+        <div class="bg-white p-8 rounded-xl shadow-2xl max-w-md w-full text-center border border-gray-200 animate-popIn">
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">Confirm Bill Generation</h3>
+            <p class="text-gray-600 mb-8 text-lg">
+                Are you sure you want to generate this bill? This will deduct items from your inventory.
+            </p>
+            <div class="flex justify-center space-x-4">
+                <button id="cancelGenerateBillButton" class="btn-base btn-secondary px-6 py-2.5">
+                    Cancel
+                </button>
+                <button id="confirmGenerateBillButton" class="btn-base btn-primary px-6 py-2.5">
+                    Generate Bill
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden HTML Template for PDF Bill -->
+    <div id="pdfBillTemplate" class="p-8 bg-white shadow-lg">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-900 mb-2">Electronic Shop</h1>
+            <p class="text-lg text-gray-600">Your Trusted Electronics Partner</p>
+            <p class="text-sm text-gray-500">123 Main Street, Tech City, 12345</p>
+            <p class="text-sm text-gray-500">Phone: (123) 456-7890 | Email: info@electronicshop.com</p>
+        </div>
+
+        <div class="flex justify-between items-center mb-6 border-b pb-4 border-gray-200">
+            <h2 class="text-2xl font-semibold text-gray-800">SALES INVOICE</h2>
+            <div class="text-right">
+                <p class="text-md font-medium">Invoice No: <span id="pdfInvoiceNumber"></span></p>
+                <p class="text-md font-medium">Date: <span id="pdfInvoiceDate"></span></p>
+            </div>
+        </div>
+
+        <div class="mb-8">
+            <h3 class="text-lg font-semibold text-gray-700 mb-2">Bill To:</h3>
+            <p id="pdfCustomerName" class="text-gray-600">Customer Name: Not Specified</p>
+            <p id="pdfCustomerAddress" class="text-gray-600">Address: Not Specified</p>
+            <p id="pdfCustomerPhone" class="text-gray-600">Phone: Not Specified</p>
+        </div>
+
+        <table class="w-full text-sm mb-8">
+            <thead>
+                <tr class="bg-gray-100">
+                    <th class="py-2 px-4 text-left font-semibold text-gray-700">Item Description</th>
+                    <th class="py-2 px-4 text-left font-semibold text-gray-700">Qty</th>
+                    <th class="py-2 px-4 text-right font-semibold text-gray-700">Unit Price (₹)</th>
+                    <th class="py-2 px-4 text-right font-semibold text-gray-700">Amount (₹)</th>
+                </tr>
+            </thead>
+            <tbody id="pdfBillItems">
+                <!-- Bill items will be inserted here by JavaScript -->
+            </tbody>
+            <tfoot>
+                <tr class="total-row">
+                    <td colspan="3" class="py-2 px-4 text-right">Total Amount:</td>
+                    <td class="py-2 px-4 text-right" id="pdfBillTotal">₹0.00</td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div class="text-center text-gray-500 text-xs mt-10">
+            <p>Thank you for your business!</p>
+            <p>All prices are in Indian Rupees (₹). Goods once sold cannot be exchanged or returned.</p>
+        </div>
+    </div>
+
 
     <script>
         // Check for logged-in user on page load
@@ -456,34 +506,36 @@
         // Global state for the application
         window.appState = {
             loggedInUser: loggedInUser,
-            inventory: [],
-            itemName: '',
-            itemQuantity: '',
-            itemPrice: '',
-            itemDescription: '',
-            itemImageUrl: '',
-            editingItem: null,
+            inventory: [], // Full inventory from localStorage
+            billingCart: [], // Items currently in the bill
             message: { text: '', type: '' },
-            isFormOpen: false
+            showGenerateBillConfirmModal: false,
         };
 
-        // DOM Elements (cached for performance)
+        // DOM Elements
         const loggedInUsernameDisplay = document.getElementById('loggedInUsernameDisplay');
         const logoutButton = document.getElementById('logoutButton');
-        const goToBillingButton = document.getElementById('goToBillingButton');
+        const goToInventoryButton = document.getElementById('goToInventoryButton');
         const messageBox = document.getElementById('messageBox');
-        const itemFormDetails = document.getElementById('itemFormDetails');
-        const formTitle = document.getElementById('formTitle');
-        const itemForm = document.getElementById('itemForm');
-        const itemNameInput = document.getElementById('itemName');
-        const itemQuantityInput = document.getElementById('itemQuantity');
-        const itemPriceInput = document.getElementById('itemPrice');
-        const itemDescriptionInput = document.getElementById('itemDescription');
-        const itemImageUrlInput = document.getElementById('itemImageUrl');
-        const cancelEditButton = document.getElementById('cancelEditButton');
-        const submitFormButton = document.getElementById('submitFormButton');
-        const submitButtonText = document.getElementById('submitButtonText');
-        const inventoryListContainer = document.getElementById('inventoryListContainer');
+        const availableInventoryList = document.getElementById('availableInventoryList');
+        const billingCartList = document.getElementById('billingCartList');
+        const billTotalDisplay = document.getElementById('billTotal');
+        const clearBillButton = document.getElementById('clearBillButton');
+        const generateBillButton = document.getElementById('generateBillButton');
+        const generateBillConfirmModal = document.getElementById('generateBillConfirmModal');
+        const cancelGenerateBillButton = document.getElementById('cancelGenerateBillButton');
+        const confirmGenerateBillButton = document.getElementById('confirmGenerateBillButton');
+
+        // PDF Template Elements
+        const pdfBillTemplate = document.getElementById('pdfBillTemplate');
+        const pdfInvoiceNumber = document.getElementById('pdfInvoiceNumber');
+        const pdfInvoiceDate = document.getElementById('pdfInvoiceDate');
+        const pdfCustomerName = document.getElementById('pdfCustomerName');
+        const pdfCustomerAddress = document.getElementById('pdfCustomerAddress');
+        const pdfCustomerPhone = document.getElementById('pdfCustomerPhone');
+        const pdfBillItems = document.getElementById('pdfBillItems');
+        const pdfBillTotal = document.getElementById('pdfBillTotal');
+
 
         // --- Local Storage Functions ---
         const getAllUsers = () => {
@@ -534,109 +586,109 @@
                 messageBox.classList.add('hidden');
             }
 
-            // Update Form Fields and State
-            itemNameInput.value = window.appState.itemName;
-            itemQuantityInput.value = window.appState.itemQuantity;
-            itemPriceInput.value = window.appState.itemPrice;
-            itemDescriptionInput.value = window.appState.itemDescription;
-            itemImageUrlInput.value = window.appState.itemImageUrl;
-
-            if (window.appState.editingItem) {
-                formTitle.textContent = 'Edit Item Details';
-                submitButtonText.textContent = 'Update Item';
-                cancelEditButton.classList.remove('hidden');
-            } else {
-                formTitle.textContent = 'Add New Inventory Item';
-                submitButtonText.textContent = 'Add Item';
-                cancelEditButton.classList.add('hidden');
-            }
-
-            // Set details element open state
-            itemFormDetails.open = window.appState.isFormOpen;
-
-            // Render Inventory List
+            // Render Available Inventory
             if (window.appState.inventory.length === 0) {
-                inventoryListContainer.innerHTML = '<p class="text-gray-500 text-center py-12 text-lg">No items in inventory. Add some items using the form above!</p>';
+                availableInventoryList.innerHTML = '<p class="text-gray-500 text-center py-8">No items in inventory. Add some from the Inventory page.</p>';
             } else {
-                let tableHtml = `
-                    <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-md scroll-container">
+                let inventoryHtml = `
+                    <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-md">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="table-header">
                                 <tr>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Image</th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Item Name</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Quantity</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Price (INR)</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Description</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Last Updated</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Actions</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Available</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Price (₹)</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Add to Bill</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                 `;
                 window.appState.inventory.forEach(item => {
-                    tableHtml += `
+                    // Only show items with quantity > 0
+                    if (item.quantity > 0) {
+                        inventoryHtml += `
+                            <tr class="table-row">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${item.name}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${item.quantity}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">₹${item.price.toFixed(2)}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
+                                    <input type="number" data-id="${item.id}" class="bill-quantity-input w-20 p-2 border rounded-md text-center" min="1" max="${item.quantity}" value="1">
+                                    <button data-id="${item.id}" class="add-to-bill-btn btn-base btn-info ml-2 px-3 py-1.5 text-sm">
+                                        <i data-lucide="plus-circle" class="icon w-4 h-4"></i> Add
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    }
+                });
+                inventoryHtml += `</tbody></table></div>`;
+                availableInventoryList.innerHTML = inventoryHtml;
+
+                // Attach event listeners for add to bill buttons
+                availableInventoryList.querySelectorAll('.add-to-bill-btn').forEach(button => {
+                    button.onclick = (event) => {
+                        const itemId = event.currentTarget.dataset.id;
+                        const inputElement = event.currentTarget.previousElementSibling;
+                        const quantity = parseInt(inputElement.value, 10);
+                        window.handleAddToBill(itemId, quantity);
+                    };
+                });
+            }
+
+            // Render Billing Cart
+            let totalBill = 0;
+            if (window.appState.billingCart.length === 0) {
+                billingCartList.innerHTML = '<p class="text-gray-500 text-center py-8">No items added to bill.</p>';
+            } else {
+                let cartHtml = `
+                    <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-md">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="table-header bg-indigo-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Item</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Qty</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Price</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Subtotal</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">Remove</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                `;
+                window.appState.billingCart.forEach(cartItem => {
+                    const subtotal = cartItem.quantity * cartItem.price;
+                    totalBill += subtotal;
+                    cartHtml += `
                         <tr class="table-row">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="item-image-container">
-                                    <img src="${item.imageUrl || `https://placehold.co/60x60/E0E7FF/4F46E5?text=No+Image`}"
-                                        alt="${item.name}"
-                                        class="item-image"
-                                        onerror="this.onerror=null;this.src='https://placehold.co/60x60/E0E7FF/4F46E5?text=No+Image';"
-                                    >
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${item.name}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                <div class="flex items-center space-x-2">
-                                    <button data-id="${item.id}" data-type="deduct" class="quantity-btn quantity-btn-minus">
-                                        <i data-lucide="minus" class="icon w-4 h-4"></i>
-                                    </button>
-                                    <span class="font-semibold text-base">${item.quantity}</span>
-                                    <button data-id="${item.id}" data-type="add" class="quantity-btn quantity-btn-plus">
-                                        <i data-lucide="plus" class="icon w-4 h-4"></i>
-                                    </button>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">₹${item.price.toFixed(2)}</td>
-                            <td class="px-6 py-4 text-sm text-gray-700 max-w-xs overflow-hidden text-ellipsis">${item.description || '-'}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                ${item.lastUpdated ? new Date(item.lastUpdated).toLocaleString() : '-'}
-                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${cartItem.name}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${cartItem.quantity}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">₹${cartItem.price.toFixed(2)}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">₹${subtotal.toFixed(2)}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
-                                <div class="flex space-x-3">
-                                    <button data-id="${item.id}" class="edit-btn text-indigo-600 hover:text-indigo-800 font-semibold hover:underline flex items-center gap-1">
-                                        <i data-lucide="edit" class="icon w-4 h-4"></i> Edit
-                                    </button>
-                                    <button data-id="${item.id}" class="delete-btn text-red-600 hover:text-red-800 font-semibold hover:underline flex items-center gap-1">
-                                        <i data-lucide="trash-2" class="icon w-4 h-4"></i> Delete
-                                    </button>
-                                </div>
+                                <button data-id="${cartItem.id}" class="remove-from-bill-btn text-red-600 hover:text-red-800 font-semibold hover:underline flex items-center gap-1">
+                                    <i data-lucide="minus-circle" class="icon w-4 h-4"></i> Remove
+                                </button>
                             </td>
                         </tr>
                     `;
                 });
-                tableHtml += `</tbody></table></div>`;
-                inventoryListContainer.innerHTML = tableHtml;
+                cartHtml += `</tbody></table></div>`;
+                billingCartList.innerHTML = cartHtml;
 
-                // Attach event listeners to newly rendered buttons
-                inventoryListContainer.querySelectorAll('.quantity-btn').forEach(button => {
-                    button.onclick = (event) => window.handleQuantityChange(event.currentTarget.dataset.id, event.currentTarget.dataset.type);
-                });
-                inventoryListContainer.querySelectorAll('.edit-btn').forEach(button => {
+                // Attach event listeners for remove from bill buttons
+                billingCartList.querySelectorAll('.remove-from-bill-btn').forEach(button => {
                     button.onclick = (event) => {
                         const itemId = event.currentTarget.dataset.id;
-                        const itemToEdit = window.appState.inventory.find(item => item.id === itemId);
-                        if (itemToEdit) window.handleEditClick(itemToEdit);
+                        window.handleRemoveFromBill(itemId);
                     };
                 });
-                // Directly call handleDeleteItem on click
-                inventoryListContainer.querySelectorAll('.delete-btn').forEach(button => {
-                    button.onclick = (event) => {
-                        const itemId = event.currentTarget.dataset.id;
-                        window.handleDeleteItem(itemId); // Direct call
-                    };
-                });
+            }
+            billTotalDisplay.textContent = `₹${totalBill.toFixed(2)}`;
+
+            // Confirmation Modal Display (for Generate Bill)
+            if (window.appState.showGenerateBillConfirmModal) {
+                generateBillConfirmModal.classList.remove('hidden');
+            } else {
+                generateBillConfirmModal.classList.add('hidden');
             }
 
             // Re-create Lucide icons after DOM updates
@@ -657,147 +709,175 @@
             window.location.href = 'index.html'; // Redirect to login
         };
 
-        window.handleAddItem = (e) => {
-            e.preventDefault();
-            const itemName = itemNameInput.value.trim();
-            const itemQuantity = itemQuantityInput.value;
-            const itemPrice = itemPriceInput.value;
-            const itemDescription = itemDescriptionInput.value.trim();
-            const itemImageUrl = itemImageUrlInput.value.trim();
-
-            if (!itemName || !itemQuantity || !itemPrice) {
-                window.showMessage('Please fill in all required fields (Name, Quantity, Price).', 'error');
-                return;
-            }
-            if (isNaN(itemQuantity) || isNaN(itemPrice) || parseFloat(itemQuantity) < 0 || parseFloat(itemPrice) < 0) {
-                window.showMessage('Quantity and Price must be valid positive numbers.', 'error');
+        window.handleAddToBill = (itemId, quantity) => {
+            if (quantity <= 0 || isNaN(quantity)) {
+                window.showMessage('Please enter a valid quantity to add.', 'error');
                 return;
             }
 
-            const newItemData = {
-                id: window.appState.editingItem ? window.appState.editingItem.id : Date.now().toString(), // Use existing ID or generate new
-                name: itemName,
-                quantity: parseInt(itemQuantity, 10),
-                price: parseFloat(itemPrice),
-                description: itemDescription,
-                imageUrl: itemImageUrl,
-                lastUpdated: new Date().toISOString()
-            };
+            const itemInInventory = window.appState.inventory.find(item => item.id === itemId);
 
-            if (window.appState.editingItem) {
-                // Update existing item
-                const index = window.appState.inventory.findIndex(item => item.id === newItemData.id);
-                if (index !== -1) {
-                    window.appState.inventory[index] = newItemData;
-                    window.showMessage('Item updated successfully!', 'success');
+            if (!itemInInventory) {
+                window.showMessage('Item not found in inventory.', 'error');
+                return;
+            }
+
+            if (quantity > itemInInventory.quantity) {
+                window.showMessage(`Only ${itemInInventory.quantity} of ${itemInInventory.name} available.`, 'error');
+                return;
+            }
+
+            const itemInCart = window.appState.billingCart.find(cartItem => cartItem.id === itemId);
+
+            if (itemInCart) {
+                // Check if adding more exceeds inventory
+                if ((itemInCart.quantity + quantity) > itemInInventory.quantity) {
+                    window.showMessage(`Cannot add more. Only ${itemInInventory.quantity} of ${itemInInventory.name} available in total.`, 'error');
+                    return;
                 }
-                window.appState.editingItem = null;
+                // Update quantity in cart
+                itemInCart.quantity += quantity;
             } else {
-                // Add new item
-                window.appState.inventory.push(newItemData);
-                window.showMessage('Item added successfully!', 'success');
+                // Add new item to cart
+                window.appState.billingCart.push({
+                    id: itemInInventory.id,
+                    name: itemInInventory.name,
+                    price: itemInInventory.price,
+                    quantity: quantity
+                });
             }
-            window.appState.inventory.sort((a, b) => a.name.localeCompare(b.name)); // Re-sort
-            saveUserInventory(); // Save to localStorage
-            
-            // Clear form fields
-            itemNameInput.value = '';
-            itemQuantityInput.value = '';
-            itemPriceInput.value = '';
-            itemDescriptionInput.value = '';
-            itemImageUrlInput.value = '';
-            window.appState.isFormOpen = false; // Close form after submission
-            window.renderApp(); // Re-render to clear form and close details
+            window.showMessage(`${quantity} x ${itemInInventory.name} added to bill!`, 'success');
+            window.renderApp(); // Re-render to update cart and total
         };
 
-        window.handleEditClick = (item) => {
-            window.appState.editingItem = item;
-            itemNameInput.value = item.name;
-            itemQuantityInput.value = item.quantity.toString();
-            itemPriceInput.value = item.price.toString();
-            itemDescriptionInput.value = item.description || '';
-            itemImageUrlInput.value = item.imageUrl || '';
-            window.appState.isFormOpen = true; // Open form
-            window.renderApp(); // Re-render to update form title/buttons
-        };
-
-        window.handleCancelEdit = () => {
-            window.appState.editingItem = null;
-            itemNameInput.value = '';
-            itemQuantityInput.value = '';
-            itemPriceInput.value = '';
-            itemDescriptionInput.value = '';
-            itemImageUrlInput.value = '';
-            window.appState.isFormOpen = false; // Close form
-            window.renderApp(); // Re-render to clear form and close details
-        };
-
-        window.handleQuantityChange = (itemId, changeType) => {
-            const item = window.appState.inventory.find(i => i.id === itemId);
-            if (item) {
-                if (changeType === 'add') {
-                    item.quantity += 1;
-                } else if (changeType === 'deduct') {
-                    if (item.quantity > 0) {
-                        item.quantity -= 1;
-                    } else {
-                        window.showMessage('Quantity cannot go below zero.', 'error');
-                        return;
-                    }
-                }
-                item.lastUpdated = new Date().toISOString();
-                saveUserInventory(); // Save to localStorage
-                window.showMessage('Quantity updated successfully!', 'success');
-                window.renderApp(); // Re-render to reflect changes
+        window.handleRemoveFromBill = (itemId) => {
+            const initialLength = window.appState.billingCart.length;
+            window.appState.billingCart = window.appState.billingCart.filter(item => item.id !== itemId);
+            if (window.appState.billingCart.length < initialLength) {
+                window.showMessage('Item removed from bill.', 'success');
             }
+            window.renderApp(); // Re-render to update cart and total
         };
 
-        // Simplified deletion function
-        window.handleDeleteItem = (itemId) => {
-            const itemToDelete = window.appState.inventory.find(item => item.id === itemId);
-            if (!itemToDelete) return; // Should not happen if button is clicked on existing item
-
-            window.appState.inventory = window.appState.inventory.filter(item => item.id !== itemId);
-            saveUserInventory(); // Save to localStorage
-            window.showMessage(`"${itemToDelete.name}" deleted successfully!`, 'success');
-            window.renderApp(); // Re-render list
+        window.handleClearBill = () => {
+            if (window.appState.billingCart.length === 0) {
+                window.showMessage('Bill is already empty.', 'info');
+                return;
+            }
+            window.appState.billingCart = [];
+            window.showMessage('Bill cleared!', 'success');
+            window.renderApp();
         };
 
-        // --- Event Listeners ---
-        document.addEventListener('DOMContentLoaded', () => {
-            loadUserInventory(); // Load inventory from localStorage for the logged-in user
-            window.renderApp(); // Initial render
+        window.handleGenerateBill = () => {
+            if (window.appState.billingCart.length === 0) {
+                window.showMessage('Add items to the bill before generating.', 'error');
+                return;
+            }
+            window.appState.showGenerateBillConfirmModal = true;
+            window.renderApp(); // Show confirmation modal
+        };
 
-            // Attach event listeners to static elements
-            logoutButton.addEventListener('click', window.handleLogout);
-            goToBillingButton.addEventListener('click', () => { window.location.href = 'billing.html'; });
-            itemForm.addEventListener('submit', window.handleAddItem);
-            cancelEditButton.addEventListener('click', window.handleCancelEdit);
-
-            // Listen for changes in the details element's open state
-            itemFormDetails.addEventListener('toggle', (event) => {
-                window.appState.isFormOpen = event.target.open;
-                // If closing, clear editing state
-                if (!event.target.open && window.appState.editingItem) {
-                    window.handleCancelEdit(); // This will also re-render
-                } else if (event.target.open && !window.appState.editingItem) {
-                    // If opening and not in edit mode, ensure form is clear
-                    itemNameInput.value = '';
-                    itemQuantityInput.value = '';
-                    itemPriceInput.value = '';
-                    itemDescriptionInput.value = '';
-                    itemImageUrlInput.value = '';
-                    formTitle.textContent = 'Add New Inventory Item';
-                    submitButtonText.textContent = 'Add Item';
-                    cancelEditButton.classList.add('hidden');
-                }
-                // Re-create icons to ensure arrow rotation is applied
-                if (typeof lucide !== 'undefined') {
-                    lucide.createIcons();
+        window.confirmGenerateBill = async () => {
+            // Deduct quantities from actual inventory
+            window.appState.billingCart.forEach(cartItem => {
+                const itemInInventory = window.appState.inventory.find(invItem => invItem.id === cartItem.id);
+                if (itemInInventory) {
+                    itemInInventory.quantity -= cartItem.quantity;
+                    itemInInventory.lastUpdated = new Date().toISOString();
                 }
             });
 
-            // Initial Lucide icon rendering for static elements
+            saveUserInventory(); // Save updated inventory to localStorage
+            
+            // Populate PDF template
+            await populatePdfTemplate();
+            await generatePdfBill(); // Generate PDF
+
+            window.appState.billingCart = []; // Clear bill after PDF generation
+            window.showMessage('Bill generated successfully! Inventory updated. PDF downloaded.', 'success');
+            window.appState.showGenerateBillConfirmModal = false;
+            window.renderApp(); // Re-render to show updated inventory and clear bill
+        };
+
+        window.cancelGenerateBill = () => {
+            window.appState.showGenerateBillConfirmModal = false;
+            window.renderApp(); // Hide modal
+        };
+
+        // --- PDF Generation Functions ---
+        const populatePdfTemplate = () => {
+            const now = new Date();
+            pdfInvoiceNumber.textContent = `INV-${now.getTime().toString().slice(-8)}`; // Simple unique ID
+            pdfInvoiceDate.textContent = now.toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
+            
+            // You can add input fields for customer name, address, phone if needed
+            // For now, using placeholders or fixed text
+            pdfCustomerName.textContent = `Customer Name: John Doe`;
+            pdfCustomerAddress.textContent = `Address: 456 Oak Ave, Sample Town, 67890`;
+            pdfCustomerPhone.textContent = `Phone: (987) 654-3210`;
+
+            let itemsHtml = '';
+            let totalAmount = 0;
+            window.appState.billingCart.forEach(item => {
+                const subtotal = item.quantity * item.price;
+                totalAmount += subtotal;
+                itemsHtml += `
+                    <tr>
+                        <td class="py-2 px-4">${item.name}</td>
+                        <td class="py-2 px-4">${item.quantity}</td>
+                        <td class="py-2 px-4 text-right">₹${item.price.toFixed(2)}</td>
+                        <td class="py-2 px-4 text-right">₹${subtotal.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+            pdfBillItems.innerHTML = itemsHtml;
+            pdfBillTotal.textContent = `₹${totalAmount.toFixed(2)}`;
+        };
+
+        const generatePdfBill = async () => {
+            const { jsPDF } = window.jspdf; // Get jsPDF from the global window object
+
+            // Use html2canvas to render the hidden template div
+            const canvas = await html2canvas(pdfBillTemplate, { scale: 2 }); // Scale for better resolution
+            const imgData = canvas.toDataURL('image/png');
+
+            const pdf = new jsPDF('p', 'mm', 'a4'); // 'p' for portrait, 'mm' for millimeters, 'a4' size
+            const imgWidth = 210; // A4 width in mm
+            const pageHeight = 297; // A4 height in mm
+            const imgHeight = canvas.height * imgWidth / canvas.width;
+            let heightLeft = imgHeight;
+
+            let position = 0;
+
+            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+
+            while (heightLeft >= 0) {
+                position = heightLeft - imgHeight;
+                pdf.addPage();
+                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+            }
+
+            pdf.save(`Bill-${pdfInvoiceNumber.textContent}.pdf`);
+        };
+
+
+        // --- Event Listeners ---
+        document.addEventListener('DOMContentLoaded', () => {
+            loadUserInventory(); // Load inventory for the logged-in user
+            window.renderApp(); // Initial render
+
+            // Attach event listeners
+            logoutButton.addEventListener('click', window.handleLogout);
+            goToInventoryButton.addEventListener('click', () => { window.location.href = 'inventory.html'; });
+            clearBillButton.addEventListener('click', window.handleClearBill);
+            generateBillButton.addEventListener('click', window.handleGenerateBill);
+            cancelGenerateBillButton.addEventListener('click', window.cancelGenerateBill);
+            confirmGenerateBillButton.addEventListener('click', window.confirmGenerateBill);
+
+            // Initial Lucide icon rendering
             if (typeof lucide !== 'undefined') {
                 lucide.createIcons();
             }
